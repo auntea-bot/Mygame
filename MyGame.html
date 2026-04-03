@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>森林探索 - 礼包链接版</title>
+    <style>
+        /* 样式和之前一样，省略重复，可参考前面的代码 */
+        body { font-family: Arial; background: #1e3c2c; color: white; text-align: center; padding-top: 20px; }
+        #game-box { background: #2d5a3b; width: 500px; margin: auto; padding: 20px; border-radius: 20px; box-shadow: 0 0 10px black; }
+        button { background: #f4c542; border: none; padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; border-radius: 10px; }
+        #inventory { background: #1e2a1a; margin-top: 20px; padding: 10px; border-radius: 10px; }
+        #message { background: black; padding: 10px; min-height: 60px; border-radius: 10px; margin: 15px 0; }
+        .save-load { background: #3a6b4b; margin-top: 10px; padding: 8px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+<div id="game-box">
+    <h2>🌲 神秘森林 🌲</h2>
+    <div id="message">点击按钮探索森林</div>
+    <button onclick="explore('树枝')">🌿 捡树枝</button>
+    <button onclick="explore('石头')">🪨 捡石头</button>
+    <button onclick="explore('果子')">🍎 摘果子</button>
+    <button onclick="randomExplore()">✨ 随机探索 ✨</button>
+    
+    <div id="inventory">
+        <strong>🎒 背包</strong><br>
+        <span id="items-list">暂无道具</span>
+    </div>
+
+    <div class="save-load">
+        <button onclick="saveGame()">💾 保存游戏</button>
+        <button onclick="loadGame()">📀 读取进度</button>
+        <button onclick="clearSave()">🗑️ 清除存档</button>
+    </div>
+</div>
+
+<script>
+    let inventory = [];
+
+    function updateInventory() {
+        let listDiv = document.getElementById("items-list");
+        if(inventory.length === 0) listDiv.innerHTML = "暂无道具";
+        else listDiv.innerHTML = inventory.join(" , ");
+    }
+
+    function addItem(item) {
+        inventory.push(item);
+        updateInventory();
+    }
+
+    function explore(item) {
+        addItem(item);
+        document.getElementById("message").innerHTML = `✅ 你发现了 ${item}！`;
+    }
+
+    function randomExplore() {
+        let items = ["魔法种子", "闪亮羽毛", "古老硬币", "蘑菇", "水晶碎片"];
+        let randomItem = items[Math.floor(Math.random() * items.length)];
+        addItem(randomItem);
+        document.getElementById("message").innerHTML = `✨ 你发现了 ${randomItem}！ ✨`;
+    }
+
+    // 保存/读取
+    function saveGame() {
+        localStorage.setItem("forestGameSave", JSON.stringify(inventory));
+        document.getElementById("message").innerHTML = "💾 游戏已保存！";
+    }
+    function loadGame() {
+        let saved = localStorage.getItem("forestGameSave");
+        if(saved) {
+            inventory = JSON.parse(saved);
+            updateInventory();
+            document.getElementById("message").innerHTML = "📀 读取成功！";
+        } else {
+            document.getElementById("message").innerHTML = "⚠️ 没有存档。";
+        }
+    }
+    function clearSave() {
+        localStorage.removeItem("forestGameSave");
+        document.getElementById("message").innerHTML = "🗑️ 存档已清除。";
+    }
+
+    // ========== 礼包链接功能 ==========
+    function checkUrlForGift() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const gift = urlParams.get('gift');
+        if (gift && gift.trim() !== "") {
+            let cleanGift = gift.trim().substring(0, 30);
+            addItem(cleanGift);
+            document.getElementById("message").innerHTML = `🎁 礼包码生效！你获得了 ${cleanGift} ！`;
+            // 移除链接中的参数，避免刷新重复领取
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }
+
+    // 页面加载时检查礼包
+    window.onload = function() {
+        checkUrlForGift();
+        // 可选：自动读取存档（如果想每次打开自动加载，取消下一行注释）
+        // loadGame();
+    };
+</script>
+</body>
+</html>
